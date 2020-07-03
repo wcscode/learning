@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *{
+            margin:0;
+            padding: 0;
+        }
+    </style>
+    <title>Linear Regression</title>
+    <script>
+        window.onload = () => {          
+
+            const canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            
+            const WIDTH = canvas.width = 1280;
+            const HEIGHT = canvas.height = 840;
+            const WIDTH_FIELD = WIDTH / 2;
+            const HEIGHT_FIELD = HEIGHT / 2;
+
+            const points = [];           
+            let meanX = meanY = 0;
+
+            canvas.addEventListener('click', (event) => {
+
+                const x = event.clientX;
+                const y = event.clientY;
+                
+                points.push({x:x, y:y});
+
+                meanX = points.reduce((accum, item) => accum + item.x, 0) / points.length;
+                meanY = points.reduce((accum, item) => accum + item.y, 0) / points.length;
+
+                context.beginPath();
+                context.arc(x, y, 4, 0, 2 * Math.PI, false);                
+                context.fillStyle = 'white';
+                context.strokeStyle = 'white';
+                context.fill();
+                context.stroke();               
+               
+            });
+
+            function renderMeanXYLine(){
+              
+                context.beginPath();
+                context.strokeStyle = 'purple';
+                context.moveTo(meanX, 0);
+                context.lineTo(meanX, HEIGHT_FIELD);
+                context.moveTo(0, meanY);
+                context.lineTo(WIDTH_FIELD, meanY);
+                context.stroke();
+            }
+            
+            function renderLinearRegressionLine(){
+
+                let numerator = denominator = 0;
+
+                points.forEach(point => {
+                    numerator += (point.x - meanX) * (point.y - meanY);
+                    denominator += Math.pow(point.x - meanX, 2);
+                });
+
+                const b = numerator / denominator;
+                const a = meanY - b * meanX;
+
+                f = (x) => b * x + a;
+                
+                context.beginPath();
+                context.strokeStyle = 'green';
+                context.moveTo(0, f(0));
+                context.lineTo(WIDTH_FIELD, f(WIDTH_FIELD));
+                
+                context.stroke();
+
+            }
+
+            function renderPoints(){
+
+                points.forEach( point => {
+
+                    context.beginPath();
+                    context.arc(point.x, point.y, 4, 0, 2 * Math.PI, false);                
+                    context.fillStyle = 'white';
+                    context.strokeStyle = 'white';
+                    context.fill();
+                    context.stroke(); 
+
+                });
+            }
+
+            function render(){
+
+               context.fillStyle = 'black';            
+               context.fillRect(0, 0, WIDTH_FIELD, HEIGHT_FIELD); 
+
+               if(points.length > 0){
+
+                    renderPoints();
+                    renderMeanXYLine();
+                    renderLinearRegressionLine();
+               }
+
+               requestAnimationFrame(render);
+            }
+            
+            render();
+        }
+
+       
+
+    </script>
+</head>
+<body>
+    <canvas id="canvas"></canvas> 
+</body>
+</html>
