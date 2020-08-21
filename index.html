@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Gradient Descent</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        body{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-items: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="800" height="600" id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const points = [{x:50, y:200}, {x:220, y:250}, {x:200, y:150}];
+        const mean = {};
+        const linearFunction = {m:.1, b:0.1};
+        const learning_rate = 0.01;
+        const max_iterations = 1000;
+        const f = (x) => linearFunction.m * x + linearFunction.b;
+
+        context.transform(1, 0, 0, -1, 0, canvas.height);
+        
+        drawScreen();       
+        drawPoints();
+       // calculateGradientDescent();
+        drawGradientDescent();
+
+        canvas.addEventListener('click', (event) =>{
+
+            const mousePositionX = event.clientX - canvas.offsetLeft;
+            const mousePositionY = event.clientY - canvas.offsetTop;
+
+            points.push({x:mousePositionX, y:mousePositionY});
+             
+            calculateMean();
+            calculateMeanSquareError();
+            calculateGradientDescent();
+            drawScreen();            
+            drawPoints();
+            drawMean();
+            drawGradientDescent();
+
+        });
+
+        function calculateMean() {
+            
+            mean.x = points.reduce((accumulator, point) => point.x + accumulator, 0) / points.length;
+            mean.y = points.reduce((accumulator, point) => point.y + accumulator, 0) / points.length;  
+
+        }
+
+        function calculateMeanSquareError(){
+
+            const mseV1 = points.reduce((accumulator, point) => Math.pow(point.y - f(point.x), 2), 0) * (1 / points.length);
+            const mseV2 = points.reduce((accumulator, point) => Math.pow(f(point.x) - point.y, 2), 0) /  points.length;
+
+            console.log("%cMSE V1 %c%f ", "color:blue","color:red", mseV1);
+            console.log("%cMSE V2 %c%f ", "color:blue","color:red", mseV2);
+            
+        }
+
+        function calculateGradientDescent(){
+
+           let { m, b } = linearFunction;
+           console.log('%cm = %f %ce %cb = %f', "color:green", m, "color:black", "color:purple", b);
+
+           let count = 0; 
+
+           while(count < max_iterations){
+            
+            //let derivate_m = points.reduce((accumulator, point) => -point.x * (point.y - f(point.x)), 0) * (2 / points.length); 
+            //let derivate_b = points.reduce((accumulator, point) => - (point.y - f(point.x)), 0) * (2 / points.length); 
+
+            let derivate_m = points.reduce((accumulator, point) => (f(point.x) - point.y) * point.x, 0); 
+            let derivate_b = points.reduce((accumulator, point) => f(point.x) - point.y, 0); 
+
+
+            //console.log('%cderivate m = %f', 'color:green', derivate_m); 
+            m = m - learning_rate * (1 / points.length) * derivate_m;
+            b = b - learning_rate * (1 / points.length) * derivate_b;
+
+            ++count; 
+           }
+           console.log('%cNEW m = %f %ce %cNEW b = %f', "color:green", m, "color:black", "color:purple", b);
+
+           linearFunction.m = m;
+           linearFunction.b = b;
+        }
+
+        function drawScreen(){
+            
+            context.beginPath();
+            context.fillStyle = 'black';
+            context.fillRect(0, 0, 800, 600);            
+            context.fill();
+
+        }
+
+        function drawMean(){
+
+            context.beginPath();
+            context.strokeStyle = 'red'; 
+            context.moveTo(mean.x, 0);
+            context.lineTo(mean.x, 600);
+            context.moveTo(0, mean.y);
+            context.lineTo(800, mean.y);
+            context.stroke();
+
+            context.beginPath(); 
+            context.fillStyle = 'red';         
+            context.arc(mean.x, mean.y, 5, 0, 2 * Math.PI);             
+            context.fill();
+
+        }
+
+        function drawPoints(){
+           
+            points.forEach(point => {
+                
+                context.beginPath();
+                context.fillStyle = 'white';
+                context.arc(point.x, point.y, 2, 0, 2 * Math.PI);                
+                context.fill(); 
+            
+            });                      
+
+        }
+
+        function drawGradientDescent(){
+
+            context.beginPath();
+            context.strokeStyle = 'green';
+            context.moveTo(0, f(0));
+            context.lineTo(800, f(800));
+            context.stroke();
+        }
+
+    </script>
+</body>
+</html>
