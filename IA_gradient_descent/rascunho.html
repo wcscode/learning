@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; gap: 50px;">
+
+    <canvas id="gradient" width="400" height="400"></canvas>
+    <canvas id="cost" width="400" height="400"></canvas>
+
+    <script>
+        const canvasGradient = document.getElementById('gradient');
+        const canvasCost = document.getElementById('cost');
+
+        var contextGradient = canvasGradient.getContext('2d');
+        var contextCost = canvasCost.getContext('2d');
+
+       /* let m = 0.1;
+        let b = 200;
+        const hypothesis = (x) => m * x + b;
+        const points = [
+
+            {x:010, y:100}, 
+            {x:200, y:150},           
+            {x:300, y:200},
+
+            ];
+        
+        const costs = [];
+        const errors = [];
+        const max_iteration = 1000;
+        const learning_rate = 0.000006;
+
+        //calculateGradientDescent();
+        calculateCost();
+
+        drawScreen(contextGradient);
+        drawHypothesis(contextGradient);
+        drawPoints(contextGradient);
+
+        drawScreen(contextCost);
+        drawCost(contextCost);
+
+        //console.table(points);
+       // console.table(errors);
+
+        canvasGradient.addEventListener('click', (event) =>{
+
+            let count = 0;
+
+            while(count <= max_iteration){
+
+                if(costs[costs.length - 1] < 0.01) break;
+
+                calculateGradientDescent();
+                calculateCost();
+
+                count++;
+            }      
+
+            drawScreen(contextGradient);
+            drawHypothesis(contextGradient);
+            drawPoints(contextGradient);
+
+            drawScreen(contextCost);
+            drawCost(contextCost);
+           
+           // console.log('h = %f * x + %f', m, b);
+        });
+
+
+        function calculateGradientDescent(){
+
+            let derivative_sum_m = 0;
+            let derivative_sum_b = 0; 
+
+            points.forEach(point =>{
+
+                derivative_sum_m += (hypothesis(point.x) - point.y) * point.x;
+                derivative_sum_b += hypothesis(point.x) - point.y;
+            });
+
+            const derivative_mean_m = derivative_sum_m / points.length;
+            const derivative_mean_b = derivative_sum_b / points.length;
+            
+            temp_m = m - (learning_rate * derivative_mean_m);
+            temp_b = b - (learning_rate * derivative_mean_b);
+        // console.log("m = " + m + ' rate = ' + learning_rate + ' dsm = ' + derivative_sum_m + ' dmm = ' + derivative_mean_m );
+            m = temp_m;
+            b = temp_b;
+         //  console.log("m = " + m + ' rate = ' + learning_rate + ' dsm = ' + derivative_sum_m + ' dmm = ' + derivative_mean_m );
+        }
+
+        function calculateCost(){
+            
+            points.forEach(point =>{
+
+                errors.push(Math.pow(hypothesis(point.x) - point.y, 2));
+
+            });
+
+            let cost = 0;
+            errors.forEach( error => cost += error);
+
+            //const cost = points.reduce((accumulator, point) => accumulator + Math.pow(hypothesis(point.x) - point.y, 2), 0) /  points.length;
+            costs.push(cost / points.length);           
+        }
+
+        function drawScreen(context){
+            
+            context.beginPath();
+            context.fillStyle = 'black';
+            context.fillRect(0, 0, 800, 600);            
+            context.fill();
+
+        }
+
+        function drawHypothesis(context){
+
+            context.beginPath();
+            context.strokeStyle = 'green';
+            context.moveTo(0, hypothesis(0));
+            context.lineTo(400, hypothesis(400));
+            context.stroke();
+        }
+
+        function drawPoints(context){
+           
+           points.forEach(point => {
+               
+               context.beginPath();
+               context.fillStyle = 'white';
+               context.arc(point.x, point.y, 2, 0, 2 * Math.PI);                
+               context.fill(); 
+           
+           });                      
+
+        }
+
+        function drawCost(context){
+           
+            costs.forEach( (cost, index) =>{
+
+                context.beginPath();
+                context.fillStyle = 'white';
+                context.arc(index, Math.min(400, cost), 2, 0, 2 * Math.PI);                
+                context.fill();                 
+                //console.log('COST = ' + cost + ' INTERATION = ' + index);
+            });
+        }      
+*/
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let theta0 = 0.1;
+	let theta1 = 0.1;
+    const maxIter = 100;
+    let iter = 1;
+    const alpha = 0.01;
+    const points = [
+
+        {x:010, y:100}, 
+        {x:200, y:150},           
+        {x:300, y:200},
+
+    ];
+
+      /** 
+	 * Returns the regression function
+	 */ 
+	function hypothesis(x) {
+		return theta1 * x + theta0;
+	}
+	
+	/**
+	 * Returns the difference between the predicted value and the actual value 
+	 * for a specific point.
+	 */
+	function predictionError(point) {
+		return hypothesis(point.x) - point.y;
+	}
+	
+	/**
+	 * Returns the squared error for a specific point.
+	 */
+	function squaredError(point) {	
+		return Math.pow(predictionError(point), 2);
+	}
+	
+	/**
+	 * Returns the mean squared error for all points in the dataset.
+	 */
+	function meanSquaredError() {
+		var sum = 0;
+		points.forEach(function(d) {
+			sum += squaredError(d);
+		});
+		return sum / (2 * points.length);
+	}
+	
+	/**
+	 * The partial derivative of the cost function for theta0.
+	 */
+	function derivativeTheta0() {
+		var sum = 0;
+		points.forEach(function(d) {
+			sum += predictionError(d);
+		});
+		return sum / points.length;		
+	}
+	
+	/**
+	 * The partial derivative of the cost function for theta1.
+	 */
+	function derivativeTheta1() {
+
+		var sum = 0;
+		points.forEach(function(d) {
+			sum += predictionError(d) * d.x;
+		});
+
+		return sum / points.length;
+
+	}
+
+    function iterate() {
+
+        // The descent step
+        var temp0 = theta0 - (alpha * derivativeTheta0());
+        var temp1 = theta1 - (alpha * derivativeTheta1());
+        theta0 = temp0;
+        theta1 = 2.5 //temp1;
+
+        //isConverged = (mse_before - meanSquaredError() < convergenceTh); 
+
+        // Update the chart
+        update();
+    }
+
+/** 
+* The main function initializes the algorithm and calls an iteration every 
+* 100 milliseconds.
+*/
+    function initialize() {
+
+        update();
+
+        var interval = setInterval(function() {
+            if(iter < maxIter) {
+                iterate();
+                iter++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 100);
+
+    }
+
+        // Call the main function
+        initialize();
+
+        function update() {
+        
+            drawScreen(contextGradient);
+            drawHypothesis(contextGradient);
+            drawPoints(contextGradient);
+
+        }
+
+        function drawScreen(context){
+            
+            context.beginPath();
+            context.fillStyle = 'black';
+            context.fillRect(0, 0, 800, 600);            
+            context.fill();
+
+        }
+
+        function drawHypothesis(context){
+           
+            context.beginPath();
+            context.strokeStyle = 'green';
+            context.moveTo(0, hypothesis(0));
+            context.lineTo(400, hypothesis(400));
+            context.stroke();
+        }
+
+        function drawPoints(context){
+           
+           points.forEach(point => {
+               
+               context.beginPath();
+               context.fillStyle = 'white';
+               context.arc(point.x, point.y, 2, 0, 2 * Math.PI);                
+               context.fill(); 
+           
+           });                      
+
+        }
+    </script>
+    
+</body>
+</html>
