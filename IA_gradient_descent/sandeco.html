@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const X = [0.5, 2.2, 2.0];
+        const y = [2.0, 2.5, 1.4];
+
+        const alpha = 0.01;
+        const epoch = 800;
+
+        let w0 = 0.1;
+        let w1 = 0.1;
+
+        function y_hat(x, w0, w1){
+            return w0 + w1*x;
+        }
+
+        function MSE (X, y , w0 , w1){
+            
+            let custo = 0;
+            const m = X.length;
+            
+            for(let i=0; i<m; i++){
+                custo += Math.pow(y_hat(X[i], w0, w1)-y[i], 2);
+            }
+        
+            return custo/m;
+
+        }
+
+        function gradient_descent_step(w0, w1, X, y, alpha){
+    
+            let erro_w0 = 0;
+            let erro_w1 = 0;
+    
+            const m = X.length;
+    
+            for(let i; i<m; i++){
+
+                erro_w0 += y_hat(X[i], w0, w1) - y[i];
+                erro_w1 += (y_hat(X[i], w0, w1) - y[i]) * X[i];
+
+            }
+        
+            new_w0 = w0 - alpha * (1/m) * erro_w0;
+            new_w1 = w1 - alpha * (1/m) * erro_w1;
+
+            return {new_w0, new_w1};
+
+        }
+
+        function gradient_descent(w0, w1, X, y, alpha, epoch){
+    
+            custo = [];
+            
+            for(let i = 0; i<epoch; i++){
+
+                grad = gradient_descent_step(w0, w1, X, y , alpha);
+
+                w0 = grad.new_w0;
+                w1 = grad.new_w1;
+
+                custo[i] = MSE(X,y,w0,w1);
+                
+            }
+         
+            return {w0, w1, custo};
+        }
+
+        console.log('predição ' + y_hat(1.5, w0, w1));
+        console.log('MSE ' + MSE(X,y, w0, w1));
+
+        let g = gradient_descent(w0, w1, X, y, alpha, epoch);
+        console.log('b = ' + w0 + ' m = ' + w1);
+
+
+    </script>
+</body>
+</html>
