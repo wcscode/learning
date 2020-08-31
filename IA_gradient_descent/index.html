@@ -16,25 +16,30 @@
 
         var contextGradient = canvasGradient.getContext('2d');
         var contextCost = canvasCost.getContext('2d');
+        contextGradient.transform(1, 0, 0, -1, 0, canvasGradient.height);
 
         let m = 0.1;
         let b = 0.1;
-        const hypothesis = (x) => m * x + b;
+        const hypothesis = (x) => b + m * x;
+        const hypothesisScale = (x) => b * 100 + m * x;
+
         const points = [
 
-            {x:0.5, y:2.0}, 
-            {x:2.2, y:2.5},           
-            {x:2.0, y:1.4},
+            { x:0.5, y:2.0 },
+            //{ x:2.2, y:2.5 },
+            //{ x:2.0, y:1.4 },
+            { x:2.2, y:2.0 },
+            { x:2.0, y:2.0 },
 
-            ];
+        ];
         
         const costs = [];
         const errors = [];
         const max_iteration = 800;
-        const learning_rate = 0.01;
+        const learning_rate = 0.03;
 
         //calculateGradientDescent();
-        calculateCost();
+       // calculateCost();
 
         drawScreen(contextGradient);
         drawHypothesis(contextGradient);
@@ -50,7 +55,7 @@
 
             let count = 0;
 
-            while(count <= max_iteration){
+            while(count < max_iteration){
 
                // if(costs[costs.length - 1] < 0.01) break;
 
@@ -67,7 +72,7 @@
             drawScreen(contextCost);
             drawCost(contextCost);
            
-            console.log('m = %f, b = %f', m, b);
+            console.log('b = ' + b + ' m = ' + m);
         });
 
 
@@ -76,21 +81,26 @@
             let derivative_sum_m = 0;
             let derivative_sum_b = 0; 
             
-            const standardPointsX = calculateZScoreStandard(points.map(point => point.x));
-            const standardPointsY = calculateZScoreStandard(points.map(point => point.y));
+//            const standardPointsX = calculateZScoreStandard(points.map(point => point.x));
+  //          const standardPointsY = calculateZScoreStandard(points.map(point => point.y));
+
+            const standardPointsX = points.map(point => point.x);
+            const standardPointsY = points.map(point => point.y);
+
 
             for(let i=0; i< standardPointsX.length; i++){
 
                 derivative_sum_m += (hypothesis(standardPointsX[i]) - standardPointsY[i]) * standardPointsX[i];            
                 derivative_sum_b += (hypothesis(standardPointsX[i]) - standardPointsY[i]);
+                //console.log('x = ' + standardPointsX[i] + ' b = ' + b + ' m = ' + m);
             }
-
-            
+            //console.log('Erro = ' + derivative_sum_m);
             const derivative_mean_m = derivative_sum_m / points.length;
             const derivative_mean_b = derivative_sum_b / points.length;
             
             m = m - (learning_rate * derivative_mean_m);
             b = b - (learning_rate * derivative_mean_b);
+           // console.log('new Erro = ' + m);
         // console.log("m = " + m + ' rate = ' + learning_rate + ' dsm = ' + derivative_sum_m + ' dmm = ' + derivative_mean_m );
            
          //  console.log("m = " + m + ' rate = ' + learning_rate + ' dsm = ' + derivative_sum_m + ' dmm = ' + derivative_mean_m );
@@ -137,8 +147,8 @@
 
             context.beginPath();
             context.strokeStyle = 'green';
-            context.moveTo(0, hypothesis(0));
-            context.lineTo(400, hypothesis(400));
+            context.moveTo(0, hypothesisScale(0));
+            context.lineTo(400, hypothesisScale(400));
             context.stroke();
         }
 
@@ -148,7 +158,7 @@
                
                context.beginPath();
                context.fillStyle = 'white';
-               context.arc(point.x, point.y, 2, 0, 2 * Math.PI);                
+               context.arc(point.x * 100, point.y * 100, 2, 0, 2 * Math.PI);                
                context.fill(); 
            
            });                      
@@ -163,7 +173,7 @@
                 context.fillStyle = 'white';
                 context.arc(index, Math.min(400, cost), 2, 0, 2 * Math.PI);                
                 context.fill();                 
-                //console.log('COST = ' + cost + ' INTERATION = ' + index);
+                console.log('COST = ' + cost + ' INTERATION = ' + index);
             });
         }      
 
