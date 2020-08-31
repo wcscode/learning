@@ -8,9 +8,11 @@
 <body>
     <script>
         const X = [0.5, 2.2, 2.0];
-        const y = [2.0, 2.5, 1.4];
+      //  const y = [2.0, 2.5, 1.4];
+      const y = [2.0, 2.0, 2.0];
 
-        const alpha = 0.01;
+
+        const alpha = 0.03;
         const epoch = 800;
 
         let w0 = 0.1;
@@ -44,11 +46,12 @@
 
                 erro_w0 += y_hat(X[i], w0, w1) - y[i];
                 erro_w1 += (y_hat(X[i], w0, w1) - y[i]) * X[i];                
+               // console.log('x = ' + X[i] + ' b = ' + w0 + ' m = ' + w1);
             }
-           
+            
             const new_w0 = w0 - alpha * (1/m) * erro_w0;
             const new_w1 = w1 - alpha * (1/m) * erro_w1;
-            
+            //console.log('new Erro = ' + new_w1);
             return {new_w0, new_w1};
 
         }
