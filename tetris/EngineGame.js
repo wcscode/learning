@@ -9,10 +9,14 @@ export default class EngineGame {
     static update = (dt) => {}
     static render = (dt) => {}
 
-    static loop = (tick) =>{
-       // console.log(tick);
-        this.update(tick);
-        this.render(tick);
+    static loop = (timestamp) =>{
+
+        this._deltaTime = (timestamp - this._lastFrameTime) / 1000;
+        this._lastFrameTime = timestamp;
+
+        //console.log(this._deltaTime);
+        this.update(this._deltaTime);
+        this.render();
         requestAnimationFrame(this.loop);
     }
 
@@ -21,7 +25,7 @@ export default class EngineGame {
     
 
     static start = () => { 
-        
+                
         this._config.canvasElementId = this._config.canvasElementId == null ? 'canvas' : this._config.canvasElementId;
         this._config.canvasWidth = this._config.canvasWidth == null ? '800' : this._config.canvasWidth;
         this._config.canvasHeight = this._config.canvasHeight == null ? '600' : this._config.canvasHeight;
@@ -35,9 +39,11 @@ export default class EngineGame {
 
         this._context.fillStyle = 'black';
         this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
+        
+        this._lastFrameTime = 0;
 
         this.load();
-        this.loop(); 
+        this.loop(0); 
     }     
         
 }
