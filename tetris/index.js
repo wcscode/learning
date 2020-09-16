@@ -2,6 +2,7 @@
 
 import Game  from './EngineGame.js';
 import Scene from './EngineScene.js';
+import Control from './EngineControl.js';
 import StartScene from './Scenes/StartScene.js';
 import PlayScene from './Scenes/PlayScene.js';
 
@@ -10,25 +11,26 @@ Game.setConfig({
     canvasHeigth: 600
 })
 
-Game.load = () => {
+Game.load = () => {    
+   
+    //Enable resources
+    Game.enableScene = Scene;
+    Game.enableControl = new Control(window);      
     
-    const context = Game.context;
-    const config = Game.config;
+    Game.scene.add(new StartScene(Game));
+    Game.scene.add(new PlayScene(Game));
 
-    Scene.add(new StartScene(context, config));
-    Scene.add(new PlayScene(context, config));
-    
-    Scene.active('START');
+    Game.scene.active('START');   
 }
 
 Game.update = (dt) =>{
 
-   Scene.update(dt);
+   Game.scene.update(dt);
 }
 
 Game.render = () =>{
 
-    Scene.render();
+    Game.scene.render();
 }
 
 Game.start();

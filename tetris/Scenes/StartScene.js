@@ -1,9 +1,11 @@
+import * as c from '../const.js';
+
 export default class StartScene{
 
-    constructor(context, config){
+    constructor(game){
         
-        this._context = context;
-        this._config = config; 
+        this._context = game.context;
+        this._config = game.config; 
         this._aggregate = 0;
         
         this._speed = Math.PI / 100;       
@@ -60,13 +62,14 @@ export default class StartScene{
         ];            
         
         this._preRenderPieces = this.preRenderPieces(this._pieces);
-       
+        
+        game.control.addCommand('PLAYER_1', c.PLAYER_1_COMMAND_ENTER, 'START');
     }
 
     get name() { return 'START' }
 
     update = (dt) => {
-       // console.log(this._angle);
+        //console.log(dt);
         this._aggregate += dt * 2;            
         this._blink = Math.trunc(this._aggregate) % 2 == 0;  
        
@@ -88,15 +91,10 @@ export default class StartScene{
     }
 
     render = () => {
-
-        //this._context.clearRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
-
-        
-        this._context.clearRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
-       // this._context.rect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
+          
+        this._context.clearRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);       
         this._context.fillStyle = '#ffccdd';
-        this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
-        //this._context.fillStyle = '#ffccdd';
+        this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);        
         this._context.fill();
 
         this._context.beginPath();
@@ -114,7 +112,6 @@ export default class StartScene{
         this._context.textBaseline = 'middle';
         this._context.fillText('TETRIS', this._config.canvasCenterX, this._config.canvasCenterY);
         
-
         if(this._blink){
         
             this._context.beginPath();

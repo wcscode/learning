@@ -2,8 +2,13 @@
 
 export default class EngineGame {
     
+    static set enableScene(scene){ this._scene = scene }
+    static set enableControl(control){ this._control = control }
+
     static get context() { return this._context; }
     static get config() { return this._config }
+    static get scene() { return this._scene }
+    static get control() { return this._control }
 
     static load = () => {}
     static update = (dt) => {}
@@ -41,7 +46,7 @@ export default class EngineGame {
         this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);
         
         this._lastFrameTime = 0;
-
+        
         this.load();
         this.loop(0); 
     }     
