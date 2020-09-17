@@ -9,12 +9,12 @@ export default class EngineControl{
         window.addEventListener ('keyup', this.keyUp, false);
     }
 
-    addCommand = (playerName, commandKeyCode, commandKeyName, commandName) => {
+    addCommand = (playerName, commandKeyCode, commandName) => {
         
         this._commands.push({
             playerName: playerName,
             commandKeyCode: commandKeyCode, 
-            commandKeyName: commandKeyName, 
+            commandName: commandName, 
             pressed: false
         });
     }
@@ -24,11 +24,10 @@ export default class EngineControl{
         
         const command = this._commands.find(f => f.commandKeyCode == commandKeyCode && !f.pressed);
 
-        if(command){
-             command.pressed = true; 
+        if(command) command.pressed = true; 
 
-        this._commands.filter(f => f.pressed).map(m => console.log(m.commandKeyName + ' = ' + m.pressed));
-        }
+       // this._commands.filter(f => f.pressed).map(m => console.log(m.commandKeyName + ' = ' + m.pressed));
+      //  }
     }
 
     keyUp = (event) => {   
@@ -37,8 +36,13 @@ export default class EngineControl{
 
         const command = this._commands.find(f => f.commandKeyCode == commandKeyCode && f.pressed);
 
-        if(command){ command.pressed = false; 
-            this._commands.filter(f => !f.pressed).map(m => console.log(m.commandKeyName + ' = ' + m.pressed));
-        }
+        if(command) command.pressed = false; 
+        //   this._commands.filter(f => !f.pressed).map(m => console.log(m.commandKeyName + ' = ' + m.pressed));
+       // }
+    }
+
+    isPressed = (playerName, commandName, canHold = false) => {
+
+        return this._commands.find(f => f.playerName == playerName && f.commandName == commandName).pressed;
     }
 }

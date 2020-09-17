@@ -16,6 +16,11 @@ export default class EngineScene{
         this._scenes[scene.name] = scene;
     }
 
+    static get get() {
+
+        return this._name;
+    }
+
     static update = (dt) => {
 
         this._scenes[this._name].update(dt);

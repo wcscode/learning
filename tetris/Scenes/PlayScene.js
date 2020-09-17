@@ -1,8 +1,17 @@
 export default class PlayScene{
 
-    constructor(context){
+    constructor(game){
 
-        this._context = context;
+        this._game = game;
+        this._context = game.context;
+        this._config = game.config; 
+
+        this._bgColor = {
+
+            r: 255,
+            g: 204,
+            b: 221
+         }
     }
 
     get name() { return 'PLAY' }
@@ -12,6 +21,11 @@ export default class PlayScene{
     }
 
     render = () => {
+
+        this._context.clearRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);       
+        this._context.fillStyle = `rgb(${this._bgColor.r}, ${this._bgColor.g}, ${this._bgColor.b})`;
+        this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);        
+        this._context.fill();
 
         this._context.beginPath();
         this._context.strokeStyle = 'green';

@@ -2,12 +2,14 @@
 
 export default class EngineGame {
     
-    static set enableScene(scene){ this._scene = scene }
-    static set enableControl(control){ this._control = control }
+    static set enableScene(scene) { this._scene = scene }
+    static set enableState(state) { this._state = state }
+    static set enableControl(control) { this._control = control }
 
     static get context() { return this._context; }
     static get config() { return this._config }
     static get scene() { return this._scene }
+    static get state() { return this._state }
     static get control() { return this._control }
 
     static load = () => {}
