@@ -10,7 +10,8 @@ import PlayScene from './Scenes/PlayScene.js';
 
 Game.setConfig({ 
     canvasWidth: 800,
-    canvasHeigth: 600
+    canvasHeigth: 600,
+    debugMode: true
 })
 
 Game.load = () => {    
@@ -27,7 +28,8 @@ Game.load = () => {
     Game.control.addCommand('PLAYER_1', c.PLAYER_1_COMMAND_DOWN, 'DOWN');
     Game.control.addCommand('PLAYER_1', c.PLAYER_1_COMMAND_SPACE, 'SPIN');        
     
-    Game.state.add('START_SCENE_TRANSITION');
+    Game.state.add('START_SCENE_TRANSITION_BEGIN');
+    Game.state.add('START_SCENE_TRANSITION_END');
     Game.state.add('PLAY_SCENE_INTRO_COUNT');
     Game.state.add('PLAY_SCENE_RUNNING');
     Game.state.add('PLAY_SCENE_PAUSE');
@@ -38,7 +40,10 @@ Game.load = () => {
     Game.scene.add(new StartScene(Game));
     Game.scene.add(new PlayScene(Game));
 
-    Game.scene.active('START');   
+    Game.scene.active('START');
+   //retirar
+    Game.scene.active('PLAY');  
+    Game.state.active('PLAY_SCENE_RUNNING'); 
 }
 
 Game.update = (dt) =>{

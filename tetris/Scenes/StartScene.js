@@ -1,203 +1,225 @@
-export default class StartScene{
+export default class StartScene {
 
     constructor(game){
         
-        this._game = game;
-        this._context = game.context;
-        this._config = game.config;
+        this._game = game;       
 
         this._aggregate = 0;
-        
-        this._speed = Math.PI / 100;       
-        this._angle = this._speed;
-        this._radius = 800;
+        this._aggregateRate = 2;
 
-        this._bgColor = {
-
-           r: 255,
-           g: 204,
-           b: 221
-        }
-     
-        this._preRenderPieces = this.preRenderPieces(this._pieces);         
+        this._transitionAlpha = 0;
+        this._transitionRate = 0.02;      
     }
 
     get name() { return 'START' }
 
-    update = (dt) => {
+    update = (dt) => {        
         
-        switch(this._game.state.get){
-            
-            case 'START_SCENE_TRANSITION':
+        if (this._game.control.isPressed('PLAYER_1', 'START'))
+            this._game.state.active('START_SCENE_TRANSITION_BEGIN');
 
-                //this._transitionCount += this._transitionRate;
-                
-               // if(this._transitionCount % 2 == 0) {
+        this.updateBackgroundFallPieces(dt);
+        this.updateTexts(dt);
 
-                    if(this._bgColor.r <= 254) this._bgColor.r += 1;
-                    if(this._bgColor.g <= 254) this._bgColor.g += 1;
-                    if(this._bgColor.b <= 254) this._bgColor.b += 1;
-
-                    if(this._bgColor.r == 255 && this._bgColor.g == 255 && this._bgColor.b == 255)
-                        this._game.scene.active('PLAY')
-               // }
-
-                break;
-
-            default:
-
-                if (this._game.control.isPressed('PLAYER_1', 'START'))
-                    this._game.state.active('START_SCENE_TRANSITION');
-
-                this._aggregate += dt * 2; 
-                if (this._aggregate > 200) this._aggregate = 0;
-
-                this._blink = Math.trunc(this._aggregate) % 2 == 0;               
-                
-                if (this._angle >= Math.PI * 2) this._angle = this._speed;
-                
-                this._angle += this._speed;        
-        
-                const radius = this._radius * (dt * 15);
-        
-                this._pieces.forEach(piece => { 
-        
-                    piece.coord.x = Math.floor(this._config.canvasCenterX + Math.sin(this._angle + piece.angle)  * radius);
-                    piece.coord.y = Math.floor(this._config.canvasCenterY + Math.cos(this._angle + piece.angle)  * radius);
-        
-                });        
-        }       
+        if(this._game.state.get == 'START_SCENE_TRANSITION_BEGIN')
+            this.updateTransition(dt);
     }
 
     render = () => {
-        
-        
-        this._context.clearRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);   
-        
-       // #ffccdd
-        this._context.fillStyle = `rgb(${this._bgColor.r}, ${this._bgColor.g}, ${this._bgColor.b})`;
-        this._context.fillRect(0, 0, this._config.canvasWidth, this._config.canvasHeight);        
-        this._context.fill();
+               
+        this.clear();     
 
-        this._context.beginPath();
-        this._context.strokeStyle = '#FFBBBB';
-        this._context.lineWidth = 10;
-        this._context.strokeRect(this._config.canvasCenterX - 100, this._config.canvasCenterY - 100, 100, 100);
-        this._context.strokeRect(this._config.canvasCenterX, this._config.canvasCenterY - 100, 100, 100);
-        this._context.strokeRect(this._config.canvasCenterX - 100, this._config.canvasCenterY, 100, 100);
-        this._context.strokeRect(this._config.canvasCenterX, this._config.canvasCenterY, 100, 100);
+        this.renderBackground();
+        this.preRenderBackgroundFallPieces();
+        this.renderTexts();  
+        
+        if(this._game.state.get == 'START_SCENE_TRANSITION_BEGIN')
+            this.renderTransition();
+      
+    }   
+ 
+    clear = () =>{
 
-        this._context.beginPath(); 
-        this._context.font = '70px Tetris';
-        this._context.fillStyle = '#5F5753';
-        this._context.textAlign = 'center';
-        this._context.textBaseline = 'middle';
-        this._context.fillText('TETRIS', this._config.canvasCenterX, this._config.canvasCenterY);
+        const { canvasWidth, canvasHeight } = this._game.config;        
+        this._game.context.clearRect(0, 0, canvasWidth, canvasHeight);                 
+    }
+    
+    updateBackgroundFallPieces = (dt) => {
+
+        if(this._preRendereds != null) {
+
+            this._preRendereds.forEach(piece => {                    
+                piece.y += piece.velocity * ( 1 + dt );
+
+                if(piece.y > this._game.config.canvasHeight) piece.y = - piece.height;
+            });
+        }
+    }
+
+    renderBackground = () => {
+
+        const { canvasWidth, canvasHeight } = this._game.config;  
+
+        this._game.context.fillStyle = '#ffccdd';
+        this._game.context.fillRect(0, 0, canvasWidth, canvasHeight);        
+        this._game.context.fill();      
+
+        this._game.context.fillStyle = '#ffbbbb';
+        this._game.context.fillRect(0, 0, canvasWidth / 6, canvasHeight);        
+        this._game.context.fill();
+
+        this._game.context.fillStyle = '#ffbbbb';
+        this._game.context.fillRect(canvasWidth - canvasWidth / 6, 0, canvasWidth / 6, canvasHeight);        
+        this._game.context.fill();
+    }
+
+    preRenderBackgroundFallPieces = () => {
+             
+
+        if(this._preRendereds == null) {
+
+            const { canvasWidth } = this._game.config;
+
+            const xPiece = (canvasWidth - 200) / 4;
+            const offset = 10;
+            
+            const o = (canvas) => {
+
+                const context = canvas.getContext('2d');            
+
+                canvas.width = 120;
+                canvas.height = 120;
+
+                context.beginPath();           
+                context.strokeStyle = '#ffbbbb';
+                context.lineWidth = 10;            
+                context.strokeRect(10, 10, 50, 50);
+                context.strokeRect(60, 10, 50, 50);
+                context.strokeRect(10, 60, 50, 50);
+                context.strokeRect(60, 60, 50, 50);            
+
+                return {canvas:canvas, x: xPiece - offset, y: 100, velocity: 10, height: canvas.height};
+            }
+
+            const l = (canvas) => {
+
+                const context = canvas.getContext('2d');            
+
+                canvas.width = 120;
+                canvas.height = 170;
+
+                context.beginPath();           
+                context.lineWidth = 10;            
+                context.strokeStyle = '#ffbbbb';
+                context.strokeRect(10, 10, 50, 50);
+                context.strokeRect(10, 60, 50, 50);            
+                context.strokeRect(10, 110, 50, 50);
+                context.strokeRect(60, 110, 50, 50);
+                
+                return {canvas:canvas, x: xPiece * 2 - offset, y: -200, velocity: 6, height: canvas.height };
+            }
+
+            const t = (canvas) => {
+
+                const context = canvas.getContext('2d');            
+
+                canvas.width = 120;
+                canvas.height = 170;
+
+                context.beginPath();           
+                context.lineWidth = 10;            
+                context.strokeStyle = '#ffbbbb';
+                context.strokeRect(10, 10, 50, 50);
+                context.strokeRect(10, 60, 50, 50);            
+                context.strokeRect(10, 110, 50, 50);
+                context.strokeRect(60, 60, 50, 50);
+                
+                return {canvas:canvas, x: xPiece * 3 - offset, y: - 100, velocity: 7, height: canvas.height };
+            }
+
+            const i = (canvas) => {
+
+                const context = canvas.getContext('2d');            
+
+                canvas.width = 70;
+                canvas.height = 220;
+
+                context.beginPath();           
+                context.lineWidth = 10;            
+                context.strokeStyle = '#ffbbbb';
+                context.strokeRect(10, 10, 50, 50);
+                context.strokeRect(10, 60, 50, 50);            
+                context.strokeRect(10, 110, 50, 50);
+                context.strokeRect(10, 160, 50, 50);
+                
+                return {canvas:canvas, x: xPiece * 4 - offset, y: 0, velocity: 9, height: canvas.height };
+            }
+
+            const pieces = [];        
+                  
+            pieces.push(o(document.createElement('canvas')));
+            pieces.push(l(document.createElement('canvas')));
+            pieces.push(t(document.createElement('canvas')));
+            pieces.push(i(document.createElement('canvas')));          
+
+            this._preRendereds = pieces;
+        }
+        
+        return this._preRendereds.map(piece => {
+            this._game.context.drawImage(piece.canvas, piece.x, piece.y);
+        });      
+    } 
+    
+    updateTexts = (dt) => {
+
+        this._aggregate += dt * this._aggregateRate; 
+
+        if (this._aggregate > 2) this._aggregate = 0;
+
+        this._blink = Math.trunc(this._aggregate) % 2 == 0;   
+    }
+
+    renderTexts = () => {
+
+        const { canvasCenterX, canvasCenterY } = this._game.config;
+
+        this._game.context.beginPath(); 
+        this._game.context.font = '70px Tetris';
+        this._game.context.fillStyle = '#5F5753';
+        this._game.context.textAlign = 'center';
+        this._game.context.textBaseline = 'middle';
+        this._game.context.fillText('TETRIS', canvasCenterX, canvasCenterY);
         
         if(this._blink){
         
-            this._context.beginPath();
-            this._context.font = '30px Arcade';
-            this._context.fillStyle = '#5F5753';
-            this._context.textAlign = 'center';
-            this._context.textBaseline = 'middle';
-            this._context.fillText('PRESS ENTER', this._config.canvasCenterX, this._config.canvasCenterY + 50);
-        }        
-        
-        this._context.save();
-       
-        this._context.translate(-30, -20);            
+            this._game.context.beginPath();
+            this._game.context.font = '30px Arcade';
+            this._game.context.fillStyle = '#5F5753';
+            this._game.context.textAlign = 'center';
+            this._game.context.textBaseline = 'middle';
+            this._game.context.fillText('PRESS ENTER', canvasCenterX, canvasCenterY + 50);
+        }  
 
-        this._preRenderPieces.forEach(preRenderedPiece => {
-            this._context.drawImage(preRenderedPiece.image, preRenderedPiece.piece.coord.x, preRenderedPiece.piece.coord.y);            
-        })
-
-        this._context.restore();       
-
-    }   
- 
-    
-    preRenderPieces = () => {
-       
-        this._pieces = [
-            {
-                angle:0,
-                fillStyle: '#32AE5B',
-                strokeStyle: '#32AE5B',
-                coord: {x:0, y:0},
-                blocks:[
-                    {x:0, y:0},
-                    {x:20, y:0},
-                    {x:40, y:0},
-                    {x:20, y:20}
-            ]},
-            {
-                angle:Math.PI / 2,
-                fillStyle: '#009DB8',
-                strokeStyle: '#009DB8',
-                coord: {x:10, y:10},
-                blocks:[
-                    {x:0, y:0},
-                    {x:0, y:20},
-                    {x:0, y:40},
-                    {x:20, y:40}
-            ]},
-            {
-                angle:Math.PI,
-                fillStyle: '#AF1F07',
-                strokeStyle: '#AF1F07',
-                coord: {x:10, y:10},
-                blocks:[
-                    {x:0, y:0},
-                    {x:0, y:20},
-                    {x:0, y:40},
-                    {x:0, y:60}
-            ]},
-            {
-                angle:Math.PI + (Math.PI / 2),
-                fillStyle: '#D6AD05',
-                strokeStyle: '#D6AD05',
-                coord: {x:10, y:10},
-                blocks:[
-                    {x:40, y:0},
-                    {x:20, y:0},
-                    {x:20, y:20},
-                    {x:0, y:20}
-                    
-            ]}
-        ];            
-        
-
-        const preRenderedPieces = [];
-
-        this._pieces.forEach(piece => {
-           
-            //this._context.translate(-300, -20); 
-
-            let canvasPiece = document.createElement('canvas');
-
-            canvasPiece.width = 64;
-            canvasPiece.height = 64; 
-
-            let contextPiece = canvasPiece.getContext('2d');
-
-            contextPiece.fillStyle = piece.fillStyle;
-            contextPiece.strokeStyle = piece.strokeStyle;
-            
-
-            piece.blocks.forEach(block => {   
-
-                contextPiece.beginPath();
-                contextPiece.fillRect(block.x, block.y, 20, 20);            
-                contextPiece.strokeRect(block.x, block.y, 20, 20);            
-                this._context.closePath();
-
-            });
-
-            preRenderedPieces.push({image:canvasPiece, piece});
-
-        });  
-
-        return preRenderedPieces;
     }
+
+    updateTransition = (dt) => {
+
+        this._transitionAlpha += Math.min(1, this._transitionRate);
+        this._blink = true;
+
+        if(this._transitionAlpha >= 1) {
+
+            this._game.state.active('PLAY_SCENE_TRANSITION_END');
+            this._game.scene.active('PLAY')
+        }
+    }
+
+    renderTransition = () => {
+
+        const { canvasWidth, canvasHeight } = this._game.config;
+
+        this._game.context.fillStyle = `rgba(255, 255, 255, ${this._transitionAlpha})`;
+        this._game.context.fillRect(0, 0, canvasWidth, canvasHeight);    
+    }
+  
 }
