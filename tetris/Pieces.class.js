@@ -140,7 +140,7 @@ export default class Piece{
         this._pieces.push(o);
 
         this._tickMovement = 0;
-        this._lastMovements = new Set();
+        this._lastMovements = this._game.control;// new Set();
     }
 
     get blocks() { return this._currentPiece.blocks; }    
@@ -154,21 +154,21 @@ export default class Piece{
     get offsetY() { return this._currentPiece.y - this._currentPiece.offsetY; }
 
     new = () => {
-
-        this._currentPiece = this._pieces[0];
+        
+        this._currentPiece = Object.assign({}, this._pieces[0]);
       // this._currentPiece = this._pieces[Math.floor((Math.random() * 7))];
        
     }
 
     moveUp = () => { this._currentPiece.y -= this._blockSide; }
     moveDown = () => { if(this._currentPiece.canFall) this._currentPiece.y += this._blockSide; }
-    moveLeft = () => { this._currentPiece.x += -this._blockSide; this._lastMovements.add('LEFT'); }
-    moveRight = () => { this._currentPiece.x += this._blockSide; this._lastMovements.add('RIGHT'); }
+    moveLeft = () => { this._currentPiece.x += -this._blockSide; }
+    moveRight = () => { this._currentPiece.x += this._blockSide; }
 
-    rotate = (clockWise = true) => {
+    rotate = (clockWise = true, keep = false) => {
         
-        if(!this._currentPiece.canFall)
-            return;
+        //if(!this._currentPiece.canFall)
+        //    return;
 
         const positions = [
 
@@ -183,7 +183,7 @@ export default class Piece{
         const key = (positions.find(f => f.value == direction).key + ((clockWise ? -1 : 1) % allowedPosition) + allowedPosition ) % allowedPosition;       
         this._currentPiece.direction = positions.find(f => f.key == key).value;  
         
-        this._lastMovements.add('ROTATE');
+  
     }
    
     get canFall() { return this._currentPiece.canFall }
@@ -191,11 +191,11 @@ export default class Piece{
 
     update = (dt) => {
 
-        if(!this.canFall)
-            this.new();              
+        //if(!this.canFall)
+        //    this.new();              
         
-        if (this._game.control.isPressedOnce('PLAYER_1', 'UP'))
-            this.rotate();
+        if (this._game.control.isPressedOnce('PLAYER_1', 'ROTATE'))
+            this.rotate(true);
 
         if (this._game.control.isPressedWithRate('PLAYER_1', 'RIGHT', 4, dt))
             this.moveRight();
@@ -220,7 +220,7 @@ export default class Piece{
             
             for(let x = 0; x < size; ++x){
 
-               // let direction = this._currentPiece.direction;
+               
                 let block = this._currentPiece.blocks[this.position(direction, length, size, x, y)];               
 
                 if(this._game.config.debugMode) {
@@ -252,15 +252,4 @@ export default class Piece{
                 return y * size + x;
         }
     } 
-    
-    leaveJustLasMovement = () => {
-        
-        this._lastMovements.forEach(movement => {
-
-        if(this._lastMovements.size > 1)
-            this._lastMovements.delete(movement)
-        
-        }); 
-    }
-    
 }

@@ -1,3 +1,5 @@
+import renderGrid from '../RenderedObjects/RenderGrid.js';
+
 export default class Grid{
 
     constructor(game, blockSide){
@@ -15,9 +17,6 @@ export default class Grid{
 
         this._x = (canvasWidth / 2) - (this._width / 2);
         this._y = 0;    
-
-        this._tickFall = 0;
-        this._tickFallVelocity = 50;
                 
         this._blocks = new Array(20).fill(0);
         
@@ -34,7 +33,7 @@ export default class Grid{
    // get xBlock() { return this.xBlock; }
    // get yBlock() { return this.yBlock; }
 
-    fill(x, y) { console.log(x + ' ' + y); this._blocks[y][x] = 1; }
+    fill(x, y) { this._blocks[y][x] = 1; }
 
     update = (dt) => {
 
@@ -44,45 +43,30 @@ export default class Grid{
 
     render = () => {
 
-        if(this._preRendered == null) {
-            
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+        if(this._preRendered == null)
+            this._preRendered = renderGrid(this._game, this._blockSide, this._x, this._xblock, this._yblock);        
 
-            const { canvasWidth, canvasHeight } = this._game.config;
+        this._game.context.drawImage(this._preRendered, 0, 0);   
+        
+        this._game.context.fillStyle = 'green';
+        this._game.context.strokeStyle = '#ffccdd';
+        this._game.context.lineWidth = 1;
 
-            canvas.width = canvasWidth;
-            canvas.height = canvasHeight;
+        for(var y = 0; y < this._yblock; ++y){
 
-            context.fillStyle = 'purple';
-            context.strokeStyle = '#ffccdd';
-            context.lineWidth = 1;
+            for(var x = 0; x < this._xblock; ++x){
+                
+                if(this._blocks[y][x] == 1){
 
-            for(var y = 0; y < this._yblock; ++y){
-
-                for(var x = 0; x < this._xblock; ++x){
-            
-                    context.fillRect(this._x + this._blockSide * x, this._blockSide * y, this._blockSide, this._blockSide);
-                    context.strokeRect(this._x + this._blockSide * x, this._blockSide * y, this._blockSide, this._blockSide);
+                    this._game.context.fillRect(this._x + this._blockSide * x, this._blockSide * y, this._blockSide, this._blockSide);
+                    this._game.context.strokeRect(this._x + this._blockSide * x, this._blockSide * y, this._blockSide, this._blockSide);
                 }
-            }   
-            
-            this._preRendered = canvas;
-        }
-
-        this._game.context.drawImage(this._preRendered, 0, 0);        
+            }
+        }   
     }
 
-    isTickFall = (dt) =>  {
-
-        this._tickFall += Math.floor(1 * (1 + dt));
-
-        if(this._tickFall % this._tickFallVelocity == 0) {
-
-            this._tickFall = 0;
-            return true;
-        }
-
-        return false;
-    }   
+    //hasIndex = (indexGridX, indexGridY) => indexGridX > -1 && indexGridX < this._xblock && indexGridY > -1 && indexGridY < this._yblock;
+    hasIndexLeft = (indexGridX) => indexGridX > -1;
+    hasIndexRight = (indexGridX) => indexGridX < this._xblock;
+    hasIndexDown = (indexGridY) => indexGridY < this._yblock;
 }
